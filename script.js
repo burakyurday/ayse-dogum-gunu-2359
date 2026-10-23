@@ -237,7 +237,6 @@
   function updateCountdown() {
     // If preview mode is activated, skip standard logic
     if (state.isPreviewMode) {
-      showCelebrationStage();
       return;
     }
 
@@ -572,7 +571,11 @@
 
 
   // --- START TIMER TICK ---
-  updateCountdown();
+  if (state.isPreviewMode) {
+    showCelebrationStage();
+  } else {
+    updateCountdown();
+  }
   setInterval(updateCountdown, 1000);
 
   // If already past 23:59:00 on first load, check immediately
