@@ -1,0 +1,17 @@
+{
+  "name": "ayse-dogum-gunu-2359",
+  "version": "1.0.0",
+  "description": "Ayşe için 23:59 Geri Sayım ve Doğum Günü Kutlaması Web Sitesi (Lego Stitch Temalı)",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "birthday",
+    "stitch",
+    "lego",
+    "celebration",
+    "countdown"
+  ],
+  "author": "",
+  "license": "MIT"
+}

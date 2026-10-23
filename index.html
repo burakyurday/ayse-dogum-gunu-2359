@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ayşe için Özel Bir Geri Sayım... 🌸⏳</title>
+  <meta name="description" content="Bugün Ayşe'nin doğum günü... 23:59'da açılacak çok özel bir sürpriz seni bekliyor." />
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+
+  <!-- Google Fonts: Fredoka (playful/lego), Outfit (sleek numbers), Caveat (handwritten letter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient floating particles canvas -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Sound Toggle Button -->
+  <button id="music-btn" class="floating-pill-btn music-btn" aria-label="Müziği Aç / Kapat">
+    <span class="icon" id="music-icon">🎵</span>
+    <span class="btn-text" id="music-text">Müziği Başlat</span>
+    <span class="sound-wave">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+  </button>
+
+  <!-- Main Container -->
+  <main class="page-container">
+
+    <!-- ============================================== -->
+    <!-- STAGE 1: COUNTDOWN SCREEN (Before 23:59)       -->
+    <!-- ============================================== -->
+    <section id="countdown-stage" class="stage-section active">
+      <div class="card glass-card countdown-card">
+        
+        <!-- Top Badge -->
+        <div class="badge-pill">
+          <span class="pulse-dot"></span>
+          <span class="badge-text">23:59:00 Kilitli Sürpriz ⏳</span>
+        </div>
+
+        <!-- Lego Stitch Character Spotlight -->
+        <div class="stitch-showcase" id="stitch-interactive-box">
+          <div class="stitch-glow-ring"></div>
+          <div class="stitch-avatar-container">
+            <img 
+              id="stitch-img" 
+              src="assets/lego-stitch-waiting.png" 
+              alt="Lego Stitch Bekliyor" 
+              class="stitch-img floating-animation"
+              onerror="this.onerror=null; this.src='assets/lego-stitch-svg.svg';"
+            />
+          </div>
+          <div class="stitch-speech-bubble">
+            <span class="bubble-heart">💖</span>
+            <span id="speech-quote">"Ayşe için en tatlı sürprizi saklıyorum... Sabret az kaldı!"</span>
+          </div>
+        </div>
+
+        <!-- Title & Story Intro -->
+        <div class="text-content">
+          <h1 class="main-title">
+            <span class="highlight-name">Ayşe</span>'nin Doğum Gününe Özel
+          </h1>
+          <p class="subtitle">
+            Herkes günün ilk saatlerinde yarıştı, tebrikler yağdırdı...<br />
+            <strong>Ama ben en son kutlayan olmak istedim.</strong><br />
+            Çünkü günün asıl finali gecenin son dakikasında saklıdır! ✨
+          </p>
+        </div>
+
+        <!-- The Big Countdown Timer -->
+        <div class="countdown-timer" id="countdown-timer">
+          <div class="time-block">
+            <div class="lego-brick-cap">
+              <span class="lego-stud"></span>
+              <span class="lego-stud"></span>
+            </div>
+            <div class="digit-box" id="hours-box">
+              <span class="digit" id="hours">00</span>
+            </div>
+            <span class="time-label">SAAT</span>
+          </div>
+
+          <div class="time-separator">:</div>
+
+          <div class="time-block">
+            <div class="lego-brick-cap">
+              <span class="lego-stud"></span>
+              <span class="lego-stud"></span>
+            </div>
+            <div class="digit-box" id="minutes-box">
+              <span class="digit" id="minutes">00</span>
+            </div>
+            <span class="time-label">DAKİKA</span>
+          </div>
+
+          <div class="time-separator">:</div>
+
+          <div class="time-block">
+            <div class="lego-brick-cap">
+              <span class="lego-stud"></span>
+              <span class="lego-stud"></span>
+            </div>
+            <div class="digit-box" id="seconds-box">
+              <span class="digit" id="seconds">00</span>
+            </div>
+            <span class="time-label">SANİYE</span>
+          </div>
+        </div>
+
+        <!-- Day Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span>Günün Başlangıcı (00:00)</span>
+            <span id="progress-percent" class="font-bold">94%</span>
+            <span>Final (23:59)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 90%;"></div>
+            <div class="progress-runner" id="progress-runner">🌸</div>
+          </div>
+        </div>
+
+        <!-- Interactive Tap Heart Action -->
+        <div class="interactive-action-area">
+          <button id="tap-heart-btn" class="heart-pulse-btn">
+            <span class="btn-emoji">💝</span>
+            <span>Ayşe'ye Kalp Gönder</span>
+            <span class="heart-counter" id="heart-counter">(0)</span>
+          </button>
+          <p class="micro-hint">Ekrana dokunarak kalpleri uçurabilirsin ✨</p>
+        </div>
+
+        <!-- Lock Warning Notice -->
+        <div class="lock-notice">
+          <span class="lock-icon">🔒</span>
+          <span>Mesajın kilidi saat tam <strong>23:59:00</strong>'da otomatik olarak açılacaktır. Sayfayı kapatma, beklemeye devam et!</span>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================== -->
+    <!-- STAGE 2: CELEBRATION REVEAL (At 23:59)         -->
+    <!-- ============================================== -->
+    <section id="celebration-stage" class="stage-section hidden">
+      <div class="card glass-card celebration-card">
+
+        <!-- Top Celebration Ribbon -->
+        <div class="celebration-badge animate-bounce">
+          <span>🎉 SÜRPRİZ KİLİDİ AÇILDI! 🎉</span>
+        </div>
+
+        <!-- Celebration Stitch Hero -->
+        <div class="celebration-hero">
+          <div class="celebration-stitch-container">
+            <img 
+              id="stitch-celebrate-img" 
+              src="assets/lego-stitch-celebrate.png" 
+              alt="Lego Stitch Kutluyor!" 
+              class="stitch-img celebration-bounce"
+              onerror="this.onerror=null; this.src='assets/lego-stitch-svg.svg';"
+            />
+          </div>
+          <h1 class="celebrate-title">
+            İYİ Kİ DOĞDUN <br />
+            <span class="sparkle-text">AYŞE!</span> 🎂✨
+          </h1>
+          <p class="celebrate-subtitle">
+            23:59... Günün son dakikası, gecenin en özel kapanışı!
+          </p>
+        </div>
+
+        <!-- The Emotional Letter / Message Box -->
+        <div class="letter-container">
+          <div class="letter-paper">
+            <div class="letter-stamp">
+              <span class="stamp-heart">💌</span>
+              <span class="stamp-text">ÖZEL TESLİMAT</span>
+            </div>
+            
+            <div class="letter-header">
+              <span class="letter-greeting">Sevgili Ayşe,</span>
+            </div>
+
+            <div class="letter-body">
+              <p>
+                Bugün 24 saatin her bir dakikasında telefonuna yüzlerce bildirim düştü; hikayeler, mesajlar, aramalar... Herkes sabahın ilk saatinde yarıştı, ilk kutlayan olmak istedi.
+              </p>
+              <p class="highlight-paragraph">
+                <strong>Ama ben bilerek ve isteyerek en son dakikayı bekledim.</strong><br />
+                Çünkü bu doğum günü alelacele kutlanıp geçilecek birkaç dakikadan ibaret değil; 23:59'un son saniyesine kadar tamamen <em>senin</em> günündü!
+              </p>
+              <p>
+                Günün ilk kutlayanı unutulabilir, aradaki kalabalık mesajlar kaybolabilir... Fakat ben, gün biterken aklında kalan son tebessüm olmak istedim.
+              </p>
+              <p>
+                Yeni yaşın sana kalbin kadar duru, gülüşün kadar parlak ve hayallerin kadar sınırsız güzellikler getirsin. Karşına hep senin gibi samimi, neşeli ve iyi kalpli insanlar çıksın.
+              </p>
+              <p class="letter-closing">
+                Günün sona ererken bil ki, yeni yaşında ve her anında hep yanındayım.<br />
+                <strong>İyi ki doğdun, iyi ki varsın! 💕</strong>
+              </p>
+            </div>
+
+            <div class="letter-footer">
+              <span class="letter-ps">— 23:59'un En Son ve En Özel Kutlayanı 🐾🌸</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Birthday Cake & Candles -->
+        <div class="cake-interactive-box">
+          <h3 class="cake-title">🎂 Hadi Şimdi Bir Dilek Tut!</h3>
+          <p class="cake-desc">Gözlerini kapat, yeni yaşın için en güzel hayalini kur ve muma tıkla!</p>
+
+          <div class="cake-display" id="cake-display">
+            <!-- SVG / CSS Cake -->
+            <div class="lego-cake">
+              <div class="candle" id="candle-flame">
+                <div class="flame glow-flame"></div>
+                <div class="smoke hidden" id="candle-smoke"></div>
+                <div class="wick"></div>
+              </div>
+              <div class="cake-top-layer">
+                <div class="frosting-drip"></div>
+                <div class="cake-studs">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="cake-base-layer">
+                <div class="cake-studs">
+                  <span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="blow-candle-btn" class="blow-candle-btn">
+            <span class="candle-icon">🕯️</span>
+            <span id="blow-btn-text">Dileğimi Tuttum, Mumu Üfle!</span>
+          </button>
+
+          <div id="wish-granted-banner" class="wish-banner hidden">
+            ✨ Dileğin Gökyüzüne Ulaştı! Yeni Yaşın Sana Uğur Getirsin! 🌟💖
+          </div>
+        </div>
+
+        <!-- Confetti Cannon Button -->
+        <div class="celebration-footer-actions">
+          <button id="reconfetti-btn" class="action-btn-sparkle">
+            <span>🎉 Konfeti Yağdır!</span>
+          </button>
+          <button id="share-love-btn" class="action-btn-heart">
+            <span>💖 Sevgini Gönder</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Dev & Preview Bar (Convenient toggle to test 23:59 state before sending to Ayşe) -->
+  <aside class="preview-bar" id="preview-bar">
+    <div class="preview-content">
+      <span class="preview-badge">🔧 Test Modu:</span>
+      <button id="toggle-preview-btn" class="preview-btn">
+        <span id="preview-btn-icon">⚡</span>
+        <span id="preview-btn-text">23:59 Sonrasını Test Et</span>
+      </button>
+      <span class="preview-hint">(Ayşe'ye göndermeden önce her iki ekranı da görebilmen için)</span>
+      <button id="close-preview-bar" class="preview-close-btn" title="Bu çubuğu gizle">✕</button>
+    </div>
+  </aside>
+
+  <!-- Audio Synthesizer & Logic -->
+  <script src="script.js"></script>
+</body>
+</html>
