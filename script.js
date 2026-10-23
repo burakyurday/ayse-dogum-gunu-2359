@@ -42,10 +42,6 @@
   const heartCounterEl = document.getElementById('heart-counter');
   const stitchShowcase = document.getElementById('stitch-interactive-box');
   const speechQuoteEl = document.getElementById('speech-quote');
-  const togglePreviewBtn = document.getElementById('toggle-preview-btn');
-  const previewBtnText = document.getElementById('preview-btn-text');
-  const previewBar = document.getElementById('preview-bar');
-  const closePreviewBar = document.getElementById('close-preview-bar');
   const blowCandleBtn = document.getElementById('blow-candle-btn');
   const blowBtnText = document.getElementById('blow-btn-text');
   const candleFlame = document.getElementById('candle-flame');
@@ -54,16 +50,21 @@
   const reconfettiBtn = document.getElementById('reconfetti-btn');
   const shareLoveBtn = document.getElementById('share-love-btn');
 
-  // --- TARGET TIME INITIALIZATION ---
+  // --- TARGET TIME CONFIGURATION ---
+  // Ayşe'nin doğum günü gecesi: 23 Ekim 2026, 23:59:00
+  const TARGET_YEAR = 2026;
+  const TARGET_MONTH = 9; // Ekim (JS'de 0-index: Ocak=0, Ekim=9)
+  const TARGET_DAY = 23;
+  const TARGET_HOUR = 23;
+  const TARGET_MINUTE = 59;
+  const TARGET_SECOND = 0;
+
   function computeTargetTime() {
-    const now = new Date();
-    // Target is today at 23:59:00
-    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0, 0);
-    return target;
+    return new Date(TARGET_YEAR, TARGET_MONTH, TARGET_DAY, TARGET_HOUR, TARGET_MINUTE, TARGET_SECOND);
   }
   state.targetDate = computeTargetTime();
 
-  // Check URL params (?preview=1 or ?unlocked=1)
+  // Check URL params (?preview=1 or ?unlocked=1 or ?test=1)
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('preview') || urlParams.has('unlocked') || urlParams.has('test')) {
     state.isPreviewMode = true;
@@ -77,10 +78,12 @@
   function initAudioContext() {
     if (!audioCtx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext();
+      if (AudioContext) {
+        audioCtx = new AudioContext();
+      }
     }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
     }
   }
 
@@ -145,14 +148,14 @@
     if (state.isPlayingMusic) return;
     initAudioContext();
     state.isPlayingMusic = true;
-    musicBtn.classList.add('playing');
-    musicText.textContent = 'Müziği Durdur';
+    if (musicBtn) musicBtn.classList.add('playing');
+    if (musicText) musicText.textContent = 'Müziği Durdur';
 
     let currentStep = 0;
     function schedulePhrase() {
       if (!state.isPlayingMusic || !audioCtx) return;
       const note = melodyNotes[currentStep];
-      if (note.f > 0) {
+      if (note && note.f > 0) {
         const now = audioCtx.currentTime;
         // Primary bell note
         playNote(note.f, now, note.d * 1.5, 'sine', 0.12);
@@ -160,7 +163,7 @@
         playNote(note.f * 2, now + 0.01, note.d * 0.9, 'triangle', 0.04);
       }
       currentStep = (currentStep + 1) % melodyNotes.length;
-      const delay = (note.d * 600) + 120;
+      const delay = (note ? note.d * 600 : 500) + 120;
       musicInterval = setTimeout(schedulePhrase, delay);
     }
     schedulePhrase();
@@ -168,21 +171,43 @@
 
   function stopMusicLoop() {
     state.isPlayingMusic = false;
-    musicBtn.classList.remove('playing');
-    musicText.textContent = 'Müziği Başlat';
+    if (musicBtn) musicBtn.classList.remove('playing');
+    if (musicText) musicText.textContent = 'Müziği Başlat';
     if (musicInterval) {
       clearTimeout(musicInterval);
       musicInterval = null;
     }
   }
 
-  musicBtn.addEventListener('click', () => {
-    if (state.isPlayingMusic) {
-      stopMusicLoop();
-    } else {
+  if (musicBtn) {
+    musicBtn.addEventListener('click', () => {
+      if (state.isPlayingMusic) {
+        stopMusicLoop();
+      } else {
+        startMusicLoop();
+      }
+    });
+  }
+
+  // --- AUTOMATIC MUSIC PLAYBACK (AUTOPLAY + FIRST GESTURE UNLOCK) ---
+  const gestureEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown', 'scroll'];
+  function unlockAndStartAudio() {
+    gestureEvents.forEach(evt => window.removeEventListener(evt, unlockAndStartAudio, true));
+    initAudioContext();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
+        if (!state.isPlayingMusic) startMusicLoop();
+      }).catch(() => {});
+    } else if (!state.isPlayingMusic) {
       startMusicLoop();
     }
-  });
+  }
+  gestureEvents.forEach(evt => window.addEventListener(evt, unlockAndStartAudio, { once: false, passive: true, capture: true }));
+
+  // Immediate attempt to play on load (works if browser allows autoplay)
+  try {
+    startMusicLoop();
+  } catch (e) {}
 
   // Sound effect for popping hearts
   function playHeartChime() {
@@ -260,8 +285,8 @@
     minutesEl.textContent = String(minutes).padStart(2, '0');
     secondsEl.textContent = String(seconds).padStart(2, '0');
 
-    // Calculate day progress from 00:00:00 to 23:59:00 (86340 total seconds)
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    // Calculate day progress from 00:00:00 to 23:59:00
+    const startOfDay = new Date(TARGET_YEAR, TARGET_MONTH, TARGET_DAY, 0, 0, 0, 0);
     const dayElapsed = now - startOfDay;
     const totalDayTime = state.targetDate - startOfDay;
     const progressPercentVal = Math.min(100, Math.max(0, (dayElapsed / totalDayTime) * 100));
@@ -274,6 +299,9 @@
   // --- UNLOCK CELEBRATION (AT 23:59) ---
   function unlockCelebration() {
     state.isUnlocked = true;
+    try {
+      localStorage.setItem('ayse_celebration_unlocked', 'true');
+    } catch (e) {}
     showCelebrationStage();
     fireCelebrationConfetti();
     startMusicLoop();
@@ -286,38 +314,7 @@
     celebrationStage.classList.remove('hidden');
     celebrationStage.classList.add('active');
 
-    previewBtnText.textContent = 'Geri Sayıma Geri Dön';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function showCountdownStage() {
-    celebrationStage.classList.add('hidden');
-    celebrationStage.classList.remove('active');
-
-    countdownStage.classList.remove('hidden');
-    countdownStage.classList.add('active');
-
-    previewBtnText.textContent = '23:59 Sonrasını Test Et';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // Toggle preview mode for testing
-  togglePreviewBtn.addEventListener('click', () => {
-    state.isPreviewMode = !state.isPreviewMode;
-    if (state.isPreviewMode) {
-      showCelebrationStage();
-      fireCelebrationConfetti();
-    } else {
-      showCountdownStage();
-    }
-  });
-
-  if (closePreviewBar) {
-    closePreviewBar.addEventListener('click', () => {
-      if (previewBar) {
-        previewBar.style.display = 'none';
-      }
-    });
   }
 
   // Tap Stitch to rotate quotes and bounce
@@ -570,17 +567,24 @@
   renderAmbient();
 
 
-  // --- START TIMER TICK ---
-  if (state.isPreviewMode) {
+  // --- INITIALIZATION ---
+  const isAlreadyPast = new Date() >= state.targetDate;
+  let wasUnlockedBefore = false;
+  try {
+    wasUnlockedBefore = localStorage.getItem('ayse_celebration_unlocked') === 'true';
+  } catch (e) {}
+
+  if (state.isPreviewMode || isAlreadyPast || wasUnlockedBefore) {
+    state.isUnlocked = true;
     showCelebrationStage();
+    if (isAlreadyPast) {
+      fireCelebrationConfetti();
+    }
   } else {
     updateCountdown();
   }
-  setInterval(updateCountdown, 1000);
 
-  // If already past 23:59:00 on first load, check immediately
-  if (new Date() >= state.targetDate && !state.isPreviewMode) {
-    unlockCelebration();
-  }
+  // Tick countdown every second
+  setInterval(updateCountdown, 1000);
 
 })();

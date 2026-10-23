@@ -1019,84 +1019,6 @@ body {
 
 
 /* ==========================================================================
-   DEV & PREVIEW BAR
-   ========================================================================== */
-
-.preview-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(244, 114, 182, 0.4);
-  padding: 8px 14px;
-  z-index: 999;
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.preview-content {
-  max-width: 680px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.preview-badge {
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.preview-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  background: linear-gradient(135deg, #ec4899, #be185d);
-  color: #ffffff;
-  border: none;
-  border-radius: 9999px;
-  font-family: var(--font-fun);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.preview-btn:hover {
-  transform: scale(1.05);
-}
-
-.preview-close-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 6px;
-  transition: all 0.2s ease;
-}
-
-.preview-close-btn:hover {
-  background: rgba(244, 63, 94, 0.15);
-  color: #e11d48;
-}
-
-.preview-hint {
-  font-size: 0.72rem;
-  color: var(--text-light);
-}
-
-
-/* ==========================================================================
    RESPONSIVE DESIGN (Mobile & Small Screens)
    ========================================================================== */
 
@@ -1170,9 +1092,5 @@ body {
 
   .sparkle-text {
     font-size: 2.3rem;
-  }
-
-  .preview-hint {
-    display: none;
   }
 }
